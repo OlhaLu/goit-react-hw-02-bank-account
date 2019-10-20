@@ -28,7 +28,7 @@ const TransactionsHistory = ({ transactions }) => {
   );
 };
 TransactionsHistory.propTypes = {
-  transactions: PropTypes.shape({
+  items: PropTypes.shape({
     id: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     amount: PropTypes.number.isRequired,

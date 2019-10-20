@@ -2,15 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styles from './Controls.module.css';
 
-const Controls = (onChange, onDeposit, onWithdraw) => {
+const Controls = (onDeposit, onWithdraw) => {
   return (
     <section className={styles.controls}>
-      <input
-        className={styles.input}
-        type="number"
-        name="amount"
-        onChange={onChange}
-      />
+      <input className={styles.input} type="number" name="amount" />
       <button className={styles.button} type="button" onClick={onDeposit}>
         Deposit
       </button>
@@ -22,9 +17,8 @@ const Controls = (onChange, onDeposit, onWithdraw) => {
 };
 
 Controls.propTypes = {
-  onChange: PropTypes.func.isRequired,
   onDeposit: PropTypes.func.isRequired,
-  onWithdraw: PropTypes.number.isRequired,
+  onWithdraw: PropTypes.func.isRequired,
 };
 
 export default Controls;

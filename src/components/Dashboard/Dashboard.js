@@ -7,66 +7,80 @@ import 'react-toastify/dist/ReactToastify.css';
 import styles from './Dashboard.module.css';
 import uuidv1 from 'uuid/v1';
 
+const date = () => {
+  const year = Math.floor(Math.random() * (2019 - 2011) + 2011);
+  const month = Math.floor(Math.random() * 12 + 1);
+  const day = Math.floor(Math.random() * 30 + 1);
+  const newDate = new Date(year, month, day);
+  return newDate.getTime().toLocaleString();
+};
+
 export default class Dashboard extends Component {
   state = {
     transactions: [],
-    balance: {
-      deposit: 0,
-      withdrawal: 0,
-      balance: 0,
-    },
+    balance: 0,
+    deposit: 0,
+    withdrawal: 0,
   };
 
-  onChange = e => {
-    this.setState({ value: e.target.value });
-  };
+  handleChange = e => {
+    const name = e.target.name;
+    const amount = e.target.value;
 
-  onClick = e => {
-    const { amount, balance } = this.state;
-    if (amount === 0) {
-      toast('Введите сумму для проведения операции!');
-    } else if (e.target.name === 'Withdraw' && amount > balance) {
-      toast('На счету недостаточно средств для проведения операции!');
-    } else {
-      const date = new Date().toLocaleString();
-      return this.setState({
-        type: e.target.name,
-        id: uuidv1.generate(),
-        amount,
-        date,
-      });
+    if (name === 'Deposit') {
+      if (amount !== '' || amount > 0) {
+        this.setState(({ transactions, balance, deposit, withdrawal }) => {
+          return {
+            transactions: [
+              ...transactions,
+              this.transactionsHistory(name, amount),
+            ],
+            balance: balance + amount,
+            deposit: deposit + amount,
+            withdrawal: withdrawal,
+          };
+        });
+      } else {
+        toast.info('Введите сумму для проведения операции!');
+      }
+    } else if (name === 'Withdrawal') {
+      if (amount < this.state.balance) {
+        this.setState(({ transactions, balance, deposit, withdrawal }) => {
+          return {
+            transactions: [
+              ...transactions,
+              this.transactionsHistory(name, amount),
+            ],
+            balance: balance - amount,
+            deposit: deposit,
+            withdrawal: withdrawal + amount,
+          };
+        });
+      } else {
+        toast.info('На счету недостаточно средств для проведения операции!');
+      }
     }
   };
 
-  totalBalance() {
-    const { transactions } = this.state;
-
-    const total = transactions.reduce(
-      (acc, transaction) => {
-        return {
-          ...acc,
-          [transaction.type]: acc[transaction.type] + transaction.amount,
-        };
-      },
-      {
-        deposit: 0,
-        withdrawal: 0,
-      },
-    );
-    total.balance = total.deposit - total.withdrawal;
-    return total;
+  transactionsHistory(buttonType, amount) {
+    const newOperation = {
+      type: buttonType,
+      id: uuidv1.generate(),
+      amount: amount,
+      date: date(),
+    };
+    return newOperation;
   }
 
   render() {
-    const { total, deposit, withdrawal, transactions } = this.state;
+    const { transactions, balance, deposit, withdrawal } = this.state;
     return (
       <div className={styles.dashboard}>
         <Controls
-          onChange={this.onChange}
-          onDeposit={this.onClick}
-          onWithdraw={this.onClick}
+          onDeposit={this.handleChange}
+          onWithdraw={this.handleChange}
         />
-        <Balance income={deposit} expenses={withdrawal} balance={total} />
+        <Balance balance={balance} income={deposit} expenses={withdrawal} />
         <TransactionHistory transactions={transactions} />
         <ToastContainer />
       </div>

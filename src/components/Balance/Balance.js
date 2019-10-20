@@ -4,7 +4,7 @@ import styles from './Balance.module.css';
 
 const Balance = (balance, income, expenses) => {
   return (
-    <section className={styles.balance}>
+    <section className={styles.sections}>
       <span className={styles.income}>
         <span>⬆</span>
         {income}
@@ -13,7 +13,7 @@ const Balance = (balance, income, expenses) => {
         <span>⬇</span>
         {expenses}
       </span>
-      <span className={styles.amount}>Balance: {balance}</span>
+      <span className={styles.balance}>Balance: {balance}</span>
     </section>
   );
 };
