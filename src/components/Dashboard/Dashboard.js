@@ -37,20 +37,22 @@ export default class Dashboard extends Component {
           };
         });
       } else {
-        toast.warn('Введите сумму для проведения операции!');
+        toast.info('Введите сумму для проведения операции!');
       }
     }
 
   handleChangeWithdrawl = e => {
     const amount = Number(e.target.parentElement.firstElementChild.value);
-      if (amount <= this.state.balance) {
-        const newOperation = {
-          type: 'withdrawal',
-          id: uuidv1(),
-          amount: amount,
-          date: date(),
-        };
 
+      if (amount <= 0) {
+          toast.error('Некорректно введена сумма! Невозможно провести операцию!');
+        } else if (amount <= this.state.balance ) {
+            const newOperation = {
+                type: 'withdrawal',
+                id: uuidv1(),
+                amount: amount,
+                date: date(),
+        };
         this.setState(({ transactions, balance }) => {
           return {
               transactions: [...transactions, newOperation],
@@ -58,10 +60,9 @@ export default class Dashboard extends Component {
           };
         });
       } else {
-        toast.error('На счету недостаточно средств для проведения операции!');
+        toast.warn('На счету недостаточно средств для проведения операции!');
       }
     }
-
 
   render() {
     const { transactions, balance } = this.state;
