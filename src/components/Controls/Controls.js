@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styles from './Controls.module.css';
 
-const Controls = (onDeposit, onWithdraw) => {
+const Controls = ({onDeposit, onWithdraw}) => {
   return (
     <section className={styles.controls}>
       <input className={styles.input} type="number" name="amount" />

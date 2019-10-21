@@ -11,79 +11,85 @@ const date = () => {
   const year = Math.floor(Math.random() * (2019 - 2011) + 2011);
   const month = Math.floor(Math.random() * 12 + 1);
   const day = Math.floor(Math.random() * 30 + 1);
-  const newDate = new Date(year, month, day);
-  return newDate.getTime().toLocaleString();
+  const newDate = new Date(year, month, day).toLocaleString('en-US');
+  return newDate;
 };
 
 export default class Dashboard extends Component {
   state = {
     transactions: [],
     balance: 0,
-    deposit: 0,
-    withdrawal: 0,
   };
 
-  handleChange = e => {
-    const name = e.target.name;
-    const amount = e.target.value;
-
-    if (name === 'Deposit') {
-      if (amount !== '' || amount > 0) {
-        this.setState(({ transactions, balance, deposit, withdrawal }) => {
+  handleChangeDeposit = e => {
+    const amount = Number(e.target.parentElement.firstElementChild.value);
+      if (amount === '' || amount > 0) {
+        this.setState(({ transactions, balance }) => {
+          const newOperation = {
+            type: 'deposit',
+            id: uuidv1(),
+            amount: amount,
+            date: date(),
+          };
           return {
-            transactions: [
-              ...transactions,
-              this.transactionsHistory(name, amount),
-            ],
+            transactions: [...transactions, newOperation],
             balance: balance + amount,
-            deposit: deposit + amount,
-            withdrawal: withdrawal,
           };
         });
       } else {
-        toast.info('Введите сумму для проведения операции!');
-      }
-    } else if (name === 'Withdrawal') {
-      if (amount < this.state.balance) {
-        this.setState(({ transactions, balance, deposit, withdrawal }) => {
-          return {
-            transactions: [
-              ...transactions,
-              this.transactionsHistory(name, amount),
-            ],
-            balance: balance - amount,
-            deposit: deposit,
-            withdrawal: withdrawal + amount,
-          };
-        });
-      } else {
-        toast.info('На счету недостаточно средств для проведения операции!');
+        toast.warn('Введите сумму для проведения операции!');
       }
     }
-  };
 
-  transactionsHistory(buttonType, amount) {
-    const newOperation = {
-      type: buttonType,
-      id: uuidv1.generate(),
-      amount: amount,
-      date: date(),
-    };
-    return newOperation;
-  }
+  handleChangeWithdrawl = e => {
+    const amount = Number(e.target.parentElement.firstElementChild.value);
+      if (amount < this.state.balance || amount > 0) {
+        const newOperation = {
+          type: 'withdrawal',
+          id: uuidv1(),
+          amount: amount,
+          date: date(),
+        };
+
+        this.setState(({ transactions, balance }) => {
+          return {
+              transactions: [...transactions, newOperation],
+              balance: balance - amount,
+          };
+        });
+      } else {
+        toast.error('На счету недостаточно средств для проведения операции!');
+      }
+    }
+
 
   render() {
-    const { transactions, balance, deposit, withdrawal } = this.state;
+    const { transactions, balance } = this.state;
+
+    const deposit = [...transactions].reduce((acc, item) => {
+      if (item.type === 'deposit') {
+        return acc + item.amount;
+      }
+      return acc;
+    }, 0);
+    const withdrawal = [...transactions].reduce((acc, item) => {
+      if (item.type === 'withdrawal') {
+        return acc + item.amount;
+      }
+      return acc;
+    }, 0);
+
     return (
       <div className={styles.dashboard}>
         <Controls
-          onDeposit={this.handleChange}
-          onWithdraw={this.handleChange}
+          onDeposit={this.handleChangeDeposit}
+          onWithdraw={this.handleChangeWithdrawl}
         />
-        <Balance balance={balance} income={deposit} expenses={withdrawal} />
+        <Balance balance={balance} income={deposit} expenses={withdrawal}/>
         <TransactionHistory transactions={transactions} />
         <ToastContainer />
       </div>
     );
   }
-}
+  }
+

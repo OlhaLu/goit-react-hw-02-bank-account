@@ -13,27 +13,29 @@ const TransactionsHistory = ({ transactions }) => {
         </tr>
       </thead>
       <tbody className={styles.transactions_body}>
-        <tr className={transactions.id}>
-          <td>{transactions.type}</td>
-          <td>{transactions.amount}$</td>
-          <td>{transactions.date}</td>
-        </tr>
-        <tr className={transactions.id}>
-          <td>{transactions.type}</td>
-          <td>{transactions.amount}$</td>
-          <td>{transactions.date}</td>
-        </tr>
+      {transactions
+            .map(item => (
+              <tr key={item.id}>
+                <td>{item.type}</td>
+                <td>{Number(item.amount)}$</td>
+                <td>{item.date}</td>
+              </tr>
+            ))
+          }
       </tbody>
     </table>
   );
 };
+
 TransactionsHistory.propTypes = {
-  items: PropTypes.shape({
+  transactions: PropTypes.arrayOf(
+    PropTypes.shape({
     id: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     amount: PropTypes.number.isRequired,
     date: PropTypes.number.isRequired,
-  }),
+    }).isRequired,
+  ).isRequired,
 };
 
 export default TransactionsHistory;

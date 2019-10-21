@@ -2,17 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styles from './Balance.module.css';
 
-const Balance = (balance, income, expenses) => {
+const Balance = ({balance, income, expenses}) => {
   return (
     <section className={styles.sections}>
-      <span className={styles.income}>
-        <span>⬆</span>
-        {income}
-      </span>
-      <span className={styles.expenses}>
-        <span>⬇</span>
-        {expenses}
-      </span>
+        <span className={styles.income}>⬆{income}</span>
+        <span className={styles.expenses}>⬇{expenses}</span>
       <span className={styles.balance}>Balance: {balance}</span>
     </section>
   );

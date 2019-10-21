@@ -6,10 +6,12 @@
 
 .income {
   color: green;
+  margin-right: 20px;
 }
 
 .expenses {
   color: red;
+  margin-right: 20px;
 }
 
 .balance {
