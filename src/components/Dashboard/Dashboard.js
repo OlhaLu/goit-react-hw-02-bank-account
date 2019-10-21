@@ -43,7 +43,7 @@ export default class Dashboard extends Component {
 
   handleChangeWithdrawl = e => {
     const amount = Number(e.target.parentElement.firstElementChild.value);
-      if (amount < this.state.balance || amount > 0) {
+      if (amount <= this.state.balance) {
         const newOperation = {
           type: 'withdrawal',
           id: uuidv1(),
