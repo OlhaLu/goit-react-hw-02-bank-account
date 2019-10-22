@@ -21,64 +21,58 @@ export default class Dashboard extends Component {
     balance: 0,
   };
 
-  handleChangeDeposit = e => {
-    const amount = Number(e.target.parentElement.firstElementChild.value);
-      if (amount === '' || amount > 0) {
-        this.setState(({ transactions, balance }) => {
-          const newOperation = {
-            type: 'deposit',
-            id: uuidv1(),
-            amount: amount,
-            date: date(),
-          };
-          return {
-            transactions: [...transactions, newOperation],
-            balance: balance + amount,
-          };
-        });
-      } else {
-        toast.info('Введите сумму для проведения операции!');
-      }
+  handleChangeDeposit = amount => {
+  if (amount === null || amount <= 0) {
+    toast.info('Введите сумму для проведения операции!');
+    return
+  }
+  this.setState(({ transactions, balance }) => {
+    return {
+      transactions: [...transactions, this.makeOperations(amount, 'deposit')],
+      balance: balance + amount,
+    };
+  })
+}
+
+  handleChangeWithdrawl = amount => {
+    if (amount <= 0) {
+      toast.error('Некорректно введена сумма! Невозможно провести операцию!');
+      return;
+    }
+    if (amount > this.state.balance ) {
+      toast.warn('На счету недостаточно средств для проведения операции!');
+      return;
+    }  
+  this.setState(({ transactions, balance }) => {
+    return {
+      transactions: [...transactions, this.makeOperations(amount, 'withdrawal')],
+      balance: balance - amount,
+    };
+  });
+}
+
+    makeOperations(amount, type) {
+      const newOperation = {
+        type: type,
+        id: uuidv1(),
+        amount: amount,
+        date: date(),
+      };
+      return newOperation;
     }
 
-  handleChangeWithdrawl = e => {
-    const amount = Number(e.target.parentElement.firstElementChild.value);
-
-      if (amount <= 0) {
-          toast.error('Некорректно введена сумма! Невозможно провести операцию!');
-        } else if (amount <= this.state.balance ) {
-            const newOperation = {
-                type: 'withdrawal',
-                id: uuidv1(),
-                amount: amount,
-                date: date(),
-        };
-        this.setState(({ transactions, balance }) => {
-          return {
-              transactions: [...transactions, newOperation],
-              balance: balance - amount,
-          };
-        });
-      } else {
-        toast.warn('На счету недостаточно средств для проведения операции!');
+transactionsOperations(type) {
+const { transactions } = this.state;
+    return [...transactions].reduce((acc, item) => {
+      if (item.type === type) {
+        return acc + item.amount;
       }
-    }
+      return acc;
+    }, 0);
+  }
 
   render() {
     const { transactions, balance } = this.state;
-
-    const deposit = [...transactions].reduce((acc, item) => {
-      if (item.type === 'deposit') {
-        return acc + item.amount;
-      }
-      return acc;
-    }, 0);
-    const withdrawal = [...transactions].reduce((acc, item) => {
-      if (item.type === 'withdrawal') {
-        return acc + item.amount;
-      }
-      return acc;
-    }, 0);
 
     return (
       <div className={styles.dashboard}>
@@ -86,10 +80,14 @@ export default class Dashboard extends Component {
           onDeposit={this.handleChangeDeposit}
           onWithdraw={this.handleChangeWithdrawl}
         />
-        <Balance balance={balance} income={deposit} expenses={withdrawal}/>
-        <TransactionHistory transactions={transactions} />
-        <ToastContainer />
-      </div>
+          <Balance 
+            balance={balance} 
+            income={this.transactionsOperations('deposit')} 
+            expenses={this.transactionsOperations('withdrawal')}
+            />
+              <TransactionHistory transactions={transactions} />
+                <ToastContainer />
+        </div>
     );
   }
   }
